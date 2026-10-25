@@ -7,32 +7,25 @@ from . import views
 app_name = 'onlinecourse'
 
 urlpatterns = [
-    # Course list
     path('', views.CourseListView.as_view(), name='index'),
 
-    # User authentication
     path('registration/', views.registration_request, name='registration'),
     path('login/', views.login_request, name='login'),
     path('logout/', views.logout_request, name='logout'),
 
-    # Course details
     path('<int:pk>/', views.CourseDetailView.as_view(), name='course_details'),
 
-    # Enroll in a course
     path('<int:course_id>/enroll/', views.enroll, name='enroll'),
 
-    # Submit exam answers
     path('<int:course_id>/submit/', views.submit, name='submit'),
 
-    # Show exam results
     path(
-        '<int:course_id>/exam_result/<int:submission_id>/',
+        '<int:course_id>/exam_results/<int:submission_id>/',
         views.show_exam_result,
         name='show_exam_result'
     ),
 ]
 
-# Serve media files during development
 urlpatterns += static(
     settings.MEDIA_URL,
     document_root=settings.MEDIA_ROOT
