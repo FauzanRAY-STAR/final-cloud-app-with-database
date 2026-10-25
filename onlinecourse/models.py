@@ -97,10 +97,11 @@ class Enrollment(models.Model):
 
 
 
+
 # Question Model
 class Question(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    question_text = models.CharField(max_length=200)
+    question_text = models.TextField()
     grade = models.IntegerField(default=1)
 
     def __str__(self):
@@ -119,7 +120,7 @@ class Question(models.Model):
 # Choice Model
 class Choice(models.Model):
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
-    choice_text = models.CharField(max_length=200)
+    choice_text = models.CharField(max_length=100)
     is_correct = models.BooleanField(default=False)
 
     def __str__(self):
@@ -136,5 +137,6 @@ class Submission(models.Model):
     submission_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Submission {self.id} for Enrollment {self.enrollment.id}"
+        return "Text Response"
+
 
