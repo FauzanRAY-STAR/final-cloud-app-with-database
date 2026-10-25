@@ -86,7 +86,7 @@ class CourseListView(generic.ListView):
 
 class CourseDetailView(generic.DetailView):
     model = Course
-    template_name = 'onlinecourse/course_detail_bootstrap.html'
+    template_name = 'onlinecourse/course_details_bootstrap.html'
 
 
 def enroll(request, course_id):
@@ -101,6 +101,7 @@ def enroll(request, course_id):
         course.save()
 
     return HttpResponseRedirect(reverse(viewname='onlinecourse:course_details', args=(course.id,)))
+
 
 
 
@@ -123,11 +124,11 @@ def submit(request, course_id):
 
     for key in request.POST:
         if key.startswith('choice'):
-            choice_id = request.POST[key]
             try:
+                choice_id = int(request.POST[key])
                 choice = Choice.objects.get(
-                    id=int(choice_id),
-                    question__lesson__course=course
+                    id=choice_id,
+                    question__course=course
                 )
                 submission.choices.add(choice)
             except (Choice.DoesNotExist, ValueError, TypeError):
@@ -156,11 +157,12 @@ def show_exam_result(request, course_id, submission_id):
     selected_choices = submission.choices.all()
     selected_ids = selected_choices.values_list('id', flat=True)
 
-    questions = Question.objects.filter(
-        lesson__course=course
-    ).prefetch_related('choice_set')
+    questions = list(
+        Question.objects.filter(course=course).prefetch_related('choice_set')
+    )
 
-    total_score = 0
+    grade = 0
+    possible = sum(question.grade for question in questions)
     question_results = []
 
     for question in questions:
@@ -171,7 +173,7 @@ def show_exam_result(request, course_id, submission_id):
         is_correct = question.is_get_score(selected_ids)
 
         if is_correct:
-            total_score += question.grade
+            grade += question.grade
 
         question_results.append({
             'question': question,
@@ -185,8 +187,8 @@ def show_exam_result(request, course_id, submission_id):
         'course': course,
         'submission': submission,
         'question_results': question_results,
-        'total_score': total_score,
-        'max_score': sum(q.grade for q in questions),
+        'grade': grade,
+        'possible': possible,
     }
 
     return render(
@@ -194,6 +196,7 @@ def show_exam_result(request, course_id, submission_id):
         'onlinecourse/exam_result_bootstrap.html',
         context
     )
+
 
 
 
