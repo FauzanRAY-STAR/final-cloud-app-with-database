@@ -11,21 +11,19 @@ from .models import (
 )
 
 
+# Inline lessons inside a course
 class LessonInline(admin.StackedInline):
     model = Lesson
     extra = 5
 
 
-class QuestionInline(admin.StackedInline):
-    model = Question
-    extra = 2
-
-
+# Inline choices inside a question
 class ChoiceInline(admin.StackedInline):
     model = Choice
     extra = 2
 
 
+# Course administration
 class CourseAdmin(admin.ModelAdmin):
     inlines = [LessonInline]
     list_display = ('name', 'pub_date')
@@ -33,16 +31,20 @@ class CourseAdmin(admin.ModelAdmin):
     search_fields = ['name', 'description']
 
 
+# Question administration
 class QuestionAdmin(admin.ModelAdmin):
     inlines = [ChoiceInline]
     list_display = ['question_text', 'course', 'grade']
+    search_fields = ['question_text']
 
 
+# Lesson administration
 class LessonAdmin(admin.ModelAdmin):
-    inlines = [QuestionInline]
     list_display = ['title', 'course']
+    search_fields = ['title']
 
 
+# Register models in Django Admin
 admin.site.register(Course, CourseAdmin)
 admin.site.register(Lesson, LessonAdmin)
 admin.site.register(Instructor)
